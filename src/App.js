@@ -1,129 +1,147 @@
+import React,{ useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import useFormValidation from './useFormValidation';
+import validateForm from './validateForm';
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import './App.css';
-import { useState } from "react";
+const initialState={
+  fullName: '',
+  email: '',
+  phoneNumber: '',
+  position: '',
+  relevantExperience: '',
+  portfolioURL: '',
+  managementExperience: '',
+  additionalSkills: {
+    JavaScript: false,
+    CSS: false,
+    Python: false,
+  },
+  preferredInterviewTime: '',
+};
+
+const App=() => {
 
 
-function App() {
+  const { formData,errors,handleChange,handleSubmit }=useFormValidation(initialState,validateForm);
 
-  const [isGuest,setIsGuest]=useState(false);
-  const [isError,setIsError]=useState(false);
-  const [errorMessages,setErrorMessages]=useState("");
-  const [isSubmitted,setIsSubmitted]=useState(false);
-  const [formDetails,setFormDetails]=useState({
-    name: "",
-    email: "",
-    age: "",
-    guestName: "",
-  });
+  const [showSummary,setShowSummary]=useState(false);
 
-  function validateAge(e) {
 
-    //it must be a number
 
-    if (isNaN(parseInt(e.target.value))||e.target.value<=0) {
-      setErrorMessages("Age must be a number greater than 0");
-      setIsError(true);
-    } else {
-      setFormDetails((prev) => {
-        return { ...prev,age: e.target.value }
-      });
-      setErrorMessages("");
-      setIsError(false);
+
+
+  const onSubmit=(e) => {
+    handleSubmit(e);
+    if (Object.keys(errors).length===0) {
+      setShowSummary(true);
     }
+  };
 
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    setIsSubmitted(true);
-
-  }
 
   return (
-    <div className="col-3  m-auto mt-5">
-      {
-        isSubmitted?
-          <div className="d-flex flex-column justify-content-center">
-            <div className="my-3">
-              <button onClick={() => {
-                setIsSubmitted(false);
-              }} className="btn btn-primary mx-3 ">Back</button>
-              <div className="alert alert-success d-inline">Form submitted successfully</div>
+    <div className="container mt-5">
+      <h1>Job Application Form</h1>
+      <form onSubmit={onSubmit}>
+        <div className="mb-3">
+          <label htmlFor="fullName" className="form-label">Full Name</label>
+          <input type="text" className="form-control" id="fullName" name="fullName" value={formData.fullName} onChange={handleChange} />
+          {errors.fullName&&<div className="text-danger">{errors.fullName}</div>}
+        </div>
 
-            </div>
-            <div>
-              <ul className="list-group">
-                <li className="list-group-item">Name: {formDetails.name}</li>
-                <li className="list-group-item">Email: {formDetails.email}</li>
-                <li className="list-group-item">Age: {formDetails.age}</li>
-                {isGuest&&<li className="list-group-item">Guest Name: {formDetails.guestName}</li>}
-              </ul>
-            </div>
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">Email</label>
+          <input type="email" className="form-control" id="email" name="email" value={formData.email} onChange={handleChange} />
+          {errors.email&&<div className="text-danger">{errors.email}</div>}
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="phoneNumber" className="form-label">Phone Number</label>
+          <input type="text" className="form-control" id="phoneNumber" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
+          {errors.phoneNumber&&<div className="text-danger">{errors.phoneNumber}</div>}
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="position" className="form-label">Applying for Position</label>
+          <select className="form-control" id="position" name="position" value={formData.position} onChange={handleChange}>
+            <option value="">Select...</option>
+            <option value="Developer">Developer</option>
+            <option value="Designer">Designer</option>
+            <option value="Manager">Manager</option>
+          </select>
+        </div>
+
+        {(formData.position==='Developer'||formData.position==='Designer')&&(
+          <div className="mb-3">
+            <label htmlFor="relevantExperience" className="form-label">Relevant Experience (Years)</label>
+            <input type="number" className="form-control" id="relevantExperience" name="relevantExperience" value={formData.relevantExperience} onChange={handleChange} />
+            {errors.relevantExperience&&<div className="text-danger">{errors.relevantExperience}</div>}
           </div>
-          :
-          (
-            <div className="mt-3">
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label htmlFor="name">Name</label>
-                  <input onChange={(e) => setFormDetails((prev) => {
-                    return { ...prev,name: e.target.value }
+        )}
 
-                  })} value={formDetails.name} type="text" required className="form-control" id="name" placeholder="Enter name" />
-                </div><br />
-                <div className="form-group">
-                  <label htmlFor="email">Email</label>
-                  <input onChange={(e) => setFormDetails((prev) => {
-                    return { ...prev,email: e.target.value }
+        {formData.position==='Designer'&&(
+          <div className="mb-3">
+            <label htmlFor="portfolioURL" className="form-label">Portfolio URL</label>
+            <input type="text" className="form-control" id="portfolioURL" name="portfolioURL" value={formData.portfolioURL} onChange={handleChange} />
+            {errors.portfolioURL&&<div className="text-danger">{errors.portfolioURL}</div>}
+          </div>
+        )}
 
-                  })} value={formDetails.email} type="email" className="form-control" id="email" placeholder="Email" required />
-                </div>
-                <br />
-                <div className="form-group">
-                  <label htmlFor="age">Age</label>
-                  <input value={formDetails.age} onChange={validateAge} type="text" className="form-control" id="age" placeholder="Age" required />
-                  {isError&&<small className="text-danger">{errorMessages}</small>}
-                </div><br />
-                <label className="form-check-label" htmlFor="guest1">
-                  Are you attending with a guest?
-                </label>
-                <br />
-                <div className="form-check form-check-inline" >
-                  <input onClick={() => {
-                    setIsGuest(true)
-                  }} className="form-check-input" type="radio" name="guest" id="guest1" onChange={() => console.log()} checked={isGuest} />
-                  <label className="form-check-label" htmlFor="guest1">
-                    Yes
-                  </label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <input className="form-check-input" onClick={() => setIsGuest(false)} type="radio" onChange={() => console.log()} name="guest" id="guest2" checked={!isGuest} />
-                  <label className="form-check-label" htmlFor="guest2">
-                    No
-                  </label>
-                </div>
-                <br />
-                <br />
-                {isGuest&&(
-                  <div className="form-group">
-                    <label htmlFor="guestName">Guest Name</label>
-                    <input value={formDetails.guestName} onChange={(e) => {
-                      setFormDetails((prev) => {
-                        return { ...prev,guestName: e.target.value }
-                      });
-                    }} required={isGuest} type="text" className="form-control" id="guestName" placeholder="Enter guest name" />
-                  </div>
-                )
-                }
-                <br />
-                <button type="submit" className="btn btn-primary">Submit</button>
-              </form>
-            </div >
-          )
-      }
+        {formData.position==='Manager'&&(
+          <div className="mb-3">
+            <label htmlFor="managementExperience" className="form-label">Management Experience</label>
+            <textarea className="form-control" id="managementExperience" name="managementExperience" value={formData.managementExperience} onChange={handleChange} />
+            {errors.managementExperience&&<div className="text-danger">{errors.managementExperience}</div>}
+          </div>
+        )}
+
+        <div className="mb-3">
+          <label className="form-label">Additional Skills</label>
+          <div className="form-check">
+            <input className="form-check-input" type="checkbox" name="JavaScript" id="JavaScript" checked={formData.additionalSkills.JavaScript} onChange={handleChange} />
+            <label className="form-check-label" htmlFor="JavaScript">JavaScript</label>
+          </div>
+          <div className="form-check">
+            <input className="form-check-input" type="checkbox" name="CSS" id="CSS" checked={formData.additionalSkills.CSS} onChange={handleChange} />
+            <label className="form-check-label" htmlFor="CSS">CSS</label>
+          </div>
+          <div className="form-check">
+            <input className="form-check-input" type="checkbox" name="Python" id="Python" checked={formData.additionalSkills.Python} onChange={handleChange} />
+            <label className="form-check-label" htmlFor="Python">Python</label>
+          </div>
+          {errors.additionalSkills&&<div className="text-danger">{errors.additionalSkills}</div>}
+        </div>
+
+        <div className="mb-3">
+          <label htmlFor="preferredInterviewTime" className="form-label">Preferred Interview Time</label>
+          <input type="datetime-local" className="form-control" id="preferredInterviewTime" name="preferredInterviewTime" value={formData.preferredInterviewTime} onChange={handleChange} />
+          {errors.preferredInterviewTime&&<div className="text-danger">{errors.preferredInterviewTime}</div>}
+        </div>
+
+        <button type="submit" className="btn btn-primary">Submit</button>
+      </form>
+
+      {showSummary&&(
+        <div className="mt-5">
+          <h2>Application Summary</h2>
+          <p><strong>Full Name:</strong> {formData.fullName}</p>
+          <p><strong>Email:</strong> {formData.email}</p>
+          <p><strong>Phone Number:</strong> {formData.phoneNumber}</p>
+          <p><strong>Position:</strong> {formData.position}</p>
+          {(formData.position==='Developer'||formData.position==='Designer')&&(
+            <p><strong>Relevant Experience:</strong> {formData.relevantExperience} years</p>
+          )}
+          {formData.position==='Designer'&&(
+            <p><strong>Portfolio URL:</strong> {formData.portfolioURL}</p>
+          )}
+          {formData.position==='Manager'&&(
+            <p><strong>Management Experience:</strong> {formData.managementExperience}</p>
+          )}
+          <p><strong>Additional Skills:</strong> {Object.keys(formData.additionalSkills).filter(skill => formData.additionalSkills[skill]).join(', ')}</p>
+          <p><strong>Preferred Interview Time:</strong> {formData.preferredInterviewTime}</p>
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default App;
